@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f7e9f0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Outfit AI">
+<title>Outfit AI · Probador virtual</title>
+<style>
+:root{--pink:#d94f91;--ink:#30232b;--muted:#786c74;--bg:#fff9fc;--line:#f0dce7}
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:linear-gradient(160deg,#fff7fb,#f7f0ff);color:var(--ink)}
+main{max-width:720px;margin:auto;padding:22px 16px 40px}
+header{text-align:center;padding:12px 0 20px}.logo{display:inline-grid;place-items:center;width:54px;height:54px;border-radius:18px;background:#f7d8e8;color:#a52d6a;font-size:27px}
+h1{font-size:29px;margin:12px 0 6px;letter-spacing:-.7px}p{line-height:1.45}.sub{margin:0;color:var(--muted);font-size:15px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:22px;padding:17px;margin:14px 0;box-shadow:0 8px 28px #7b41640b}
+h2{font-size:17px;margin:0 0 5px}.hint{font-size:13px;color:var(--muted);margin:0 0 13px}
+.uploads{display:grid;grid-template-columns:1fr 1fr;gap:12px}.upload{min-width:0}.pick{display:flex;min-height:148px;border:1.5px dashed #dfb7cc;border-radius:16px;background:#fff8fc;align-items:center;justify-content:center;flex-direction:column;gap:7px;padding:10px;text-align:center;overflow:hidden;position:relative}
+.pick input{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer}.pick .emoji{font-size:28px}.pick strong{font-size:13px}.pick small{font-size:11px;color:var(--muted)}.preview{width:100%;height:148px;object-fit:contain;background:#fbf6f9;border-radius:13px;display:none}
+label.caption{display:block;font-size:13px;font-weight:650;margin-bottom:8px}
+textarea{width:100%;min-height:82px;border:1px solid var(--line);border-radius:13px;padding:12px;font:inherit;font-size:14px;resize:vertical;background:#fff}
+button,.primary{border:0;border-radius:14px;padding:14px 16px;font:inherit;font-weight:700;cursor:pointer;text-align:center}
+.primary{width:100%;color:white;background:linear-gradient(100deg,#d94f91,#a76ce0);margin-top:13px;font-size:16px}
+.secondary{display:block;width:100%;color:#a52d6a;background:#fbeaf3;text-decoration:none;margin-top:10px}
+.status{display:none;margin-top:12px;background:#fff5d9;border:1px solid #f3dfa0;padding:12px;border-radius:12px;font-size:13px;line-height:1.4}
+.privacy{font-size:12px;color:var(--muted);text-align:center;padding:4px 10px}
+footer{text-align:center;color:var(--muted);font-size:11px;margin-top:20px}
+@media(max-width:380px){main{padding:16px 12px}.panel{padding:13px}.pick{min-height:125px}.preview{height:125px}h1{font-size:26px}}
+</style>
+</head>
+<body>
+<main>
+<header><div class="logo">✦</div><h1>Outfit AI</h1><p class="sub">Tu probador virtual, desde el iPhone 💗</p></header>
+<section class="panel">
+<h2>1. Elige tus imágenes</h2><p class="hint">Carga tu foto y la imagen de la ropa que quieres probar.</p>
+<div class="uploads">
+<div class="upload"><label class="caption" for="person">Tu fotografía</label><div class="pick" id="personPick"><span class="emoji">🪞</span><strong>Elegir mi foto</strong><small>JPG o PNG</small><input id="person" type="file" accept="image/*"></div><img class="preview" id="personPreview" alt="Vista previa de tu fotografía"></div>
+<div class="upload"><label class="caption" for="outfit">Outfit de referencia</label><div class="pick" id="outfitPick"><span class="emoji">👗</span><strong>Elegir la ropa</strong><small>JPG o PNG</small><input id="outfit" type="file" accept="image/*"></div><img class="preview" id="outfitPreview" alt="Vista previa del outfit"></div>
+</div>
+</section>
+<section class="panel">
+<h2>2. Describe el resultado</h2><p class="hint">Opcional: indica qué detalles quieres conservar.</p>
+<textarea id="prompt" placeholder="Ej.: Cambia solo la ropa. Conserva mi rostro, pose, cuerpo, iluminación y fondo. Respeta el color y los detalles del outfit de referencia."></textarea>
+<button class="primary" id="generate">✨ Preparar mi outfit</button>
+<div class="status" id="status" role="status"></div>
+<a class="secondary" href="https://weshopai-weshopai-virtual-try-on.hf.space/" target="_blank" rel="noopener noreferrer" style="padding:13px">Abrir el generador de IA ↗</a>
+</section>
+<p class="privacy">Tus imágenes solo se muestran en esta página mientras la tienes abierta. Esta primera versión no las sube ni las guarda en un servidor.</p>
+<footer>Outfit AI · Primera versión · Hecha para probar desde tu iPhone</footer>
+</main>
+<script>
+function attachPreview(inputId, previewId, pickId){
+ const input=document.getElementById(inputId), preview=document.getElementById(previewId), pick=document.getElementById(pickId);
+ input.addEventListener('change',()=>{
+  const file=input.files&&input.files[0]; if(!file)return;
+  if(!file.type.startsWith('image/')){alert('Elige un archivo de imagen.');input.value='';return;}
+  preview.src=URL.createObjectURL(file);preview.style.display='block';pick.style.display='none';
+ });
+ preview.addEventListener('click',()=>input.click());
+}
+attachPreview('person','personPreview','personPick');
+attachPreview('outfit','outfitPreview','outfitPick');
+document.getElementById('generate').addEventListener('click',()=>{
+ const person=document.getElementById('person').files[0], outfit=document.getElementById('outfit').files[0];
+ const status=document.getElementById('status');status.style.display='block';
+ if(!person||!outfit){status.textContent='Primero selecciona las dos imágenes: tu fotografía y la ropa de referencia.';return;}
+ status.textContent='¡Las dos imágenes están listas! Esta versión es la interfaz inicial: todavía no está conectada automáticamente al motor de IA. Pulsa “Abrir el generador de IA” para usar la demo que ya probaste. Tendrás que seleccionar allí las imágenes de nuevo.';
+});
+</script>
+</body>
+</html>
